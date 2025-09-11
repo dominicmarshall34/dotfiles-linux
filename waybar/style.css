@@ -1,0 +1,161 @@
+/* Tokyo Night Moon Theme for Waybar - Text Based */
+* {
+    font-family: "Hack", "JetBrains Mono", "Fira Code", "DejaVu Sans Mono", monospace;
+    font-size: 13px;
+    font-weight: 500;
+    min-height: 0;
+}
+
+window#waybar {
+    background-color: rgba(26, 27, 38, 0.95);
+    color: #c8d3f5;
+    transition-property: background-color;
+    transition-duration: .5s;
+    border-bottom: 2px solid rgba(130, 170, 255, 0.3);
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+/* Workspaces - clean numbered display */
+#workspaces button {
+    padding: 0 12px;
+    color: #737aa2;
+    background-color: transparent;
+    border-radius: 6px;
+    margin: 4px 2px;
+    font-weight: 600;
+    min-width: 30px;
+}
+
+#workspaces button:hover {
+    background: rgba(130, 170, 255, 0.2);
+    color: #82aaff;
+}
+
+#workspaces button.active {
+    background-color: rgba(130, 170, 255, 0.3);
+    color: #82aaff;
+}
+
+#workspaces button.urgent {
+    background-color: rgba(255, 117, 127, 0.3);
+    color: #ff757f;
+}
+
+/* Common module styling */
+#clock,
+#battery,
+#cpu,
+#memory,
+#network,
+#pulseaudio,
+#tray,
+#window {
+    padding: 0 12px;
+    margin: 4px 2px;
+    background-color: rgba(59, 66, 97, 0.5);
+    color: #c8d3f5;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+/* Window title */
+#window {
+    background-color: transparent;
+    color: #737aa2;
+    font-weight: 400;
+}
+
+/* Clock - prominent center display */
+#clock {
+    background-color: rgba(130, 170, 255, 0.2);
+    color: #82aaff;
+    font-weight: 600;
+    min-width: 60px;
+}
+
+/* Battery states */
+#battery {
+    background-color: rgba(65, 166, 181, 0.2);
+    color: #41a6b5;
+}
+
+#battery.charging {
+    color: #9ece6a;
+    background-color: rgba(158, 206, 106, 0.2);
+}
+
+#battery.warning:not(.charging) {
+    background-color: rgba(255, 158, 100, 0.2);
+    color: #ff9e64;
+}
+
+#battery.critical:not(.charging) {
+    background-color: rgba(255, 117, 127, 0.2);
+    color: #ff757f;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+/* CPU monitor */
+#cpu {
+    background-color: rgba(187, 154, 247, 0.2);
+    color: #bb9af7;
+}
+
+/* Memory monitor */
+#memory {
+    background-color: rgba(224, 175, 104, 0.2);
+    color: #e0af68;
+}
+
+/* Network states */
+#network {
+    background-color: rgba(125, 206, 160, 0.2);
+    color: #7dcfff;
+}
+
+#network.disconnected {
+    background-color: rgba(255, 117, 127, 0.2);
+    color: #ff757f;
+}
+
+/* Audio control */
+#pulseaudio {
+    background-color: rgba(255, 158, 100, 0.2);
+    color: #ff9e64;
+}
+
+#pulseaudio.muted {
+    background-color: rgba(115, 122, 162, 0.2);
+    color: #737aa2;
+}
+
+/* System tray */
+#tray {
+    background-color: rgba(59, 66, 97, 0.5);
+}
+
+/* Animations */
+@keyframes blink {
+    to {
+        background-color: rgba(255, 117, 127, 0.4);
+    }
+}
+
+/* Tooltip styling */
+tooltip {
+    background: rgba(26, 27, 38, 0.95);
+    border: 1px solid rgba(130, 170, 255, 0.3);
+    border-radius: 6px;
+}
+
+tooltip label {
+    color: #c8d3f5;
+    padding: 4px;
+}

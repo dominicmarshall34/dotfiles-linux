@@ -1,0 +1,68 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 35,
+    "spacing": 4,
+    "modules-left": ["hyprland/workspaces", "hyprland/window"],
+    "modules-center": ["clock"],
+    "modules-right": ["pulseaudio", "network", "cpu", "memory", "battery", "tray"],
+    "hyprland/workspaces": {
+        "disable-scroll": false,
+        "all-outputs": true,
+        "format": "{name}",
+        "on-scroll-up": "hyprctl dispatch workspace e-1",
+        "on-scroll-down": "hyprctl dispatch workspace e+1"
+    },
+    "hyprland/window": {
+        "max-length": 50,
+        "format": "{}",
+        "separate-outputs": true
+    },
+    "clock": {
+        "timezone": "Europe/London",
+        "format": "{:%H:%M}",
+        "format-alt": "{:%A, %B %d, %Y}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+    },
+    "cpu": {
+        "format": "CPU {usage}%",
+        "tooltip": true,
+        "interval": 2
+    },
+    "memory": {
+        "format": "MEM {percentage}%",
+        "format-alt": "MEM {used:0.1f}G/{total:0.1f}G",
+        "tooltip": true,
+        "interval": 2
+    },
+    "battery": {
+        "states": {
+            "good": 80,
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "BAT {capacity}%",
+        "format-charging": "CHG {capacity}%",
+        "format-plugged": "PLG {capacity}%",
+        "format-alt": "BAT {time}",
+        "format-full": "FULL"
+    },
+    "network": {
+        "format-wifi": "WIFI {signalStrength}%",
+        "format-ethernet": "ETH",
+        "tooltip-format": "{ifname} via {gwaddr}",
+        "format-linked": "LINK (No IP)",
+        "format-disconnected": "OFFLINE",
+        "format-alt": "{ifname}: {ipaddr}/{cidr}"
+    },
+    "pulseaudio": {
+        "format": "VOL {volume}%",
+        "format-bluetooth": "BT {volume}%",
+        "format-bluetooth-muted": "BT MUTE",
+        "format-muted": "MUTE",
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+    },
+    "tray": {
+        "spacing": 10
+    }
+}
