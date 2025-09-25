@@ -16,7 +16,7 @@ echo "⬇️  Installing packages..."
 packages=(
     brightnessctl
     dunst
-    firefox
+    chromium
     fzf
     ghostty
     git
