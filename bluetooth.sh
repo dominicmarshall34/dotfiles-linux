@@ -13,7 +13,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Device names to search for (case insensitive)
-DEVICE_NAMES=("MX Anywhere 2" "Keychron")
+DEVICE_NAMES=("MX Anywhere 2S" "Keychron K2")
 
 # Function to print colored output
 print_status() {
@@ -73,7 +73,7 @@ find_device_mac() {
     fi
 }
 
-# Function to connect to a device
+# Function to connect to a device (with automatic pairing if needed)
 connect_device() {
     local device_name="$1"
     local mac_address
@@ -81,7 +81,7 @@ connect_device() {
     print_status "Searching for device: $device_name"
 
     if mac_address=$(find_device_mac "$device_name"); then
-        print_status "Found device: $device_name ($mac_address)"
+        print_status "Found paired device: $device_name ($mac_address)"
 
         # Check if already connected
         if echo "info $mac_address" | bluetoothctl | grep -q "Connected: yes"; then
@@ -99,8 +99,84 @@ connect_device() {
         fi
     else
         print_warning "Device '$device_name' not found in paired devices"
-        print_status "Available paired devices:"
-        echo "paired-devices" | bluetoothctl | grep "Device" || print_warning "No paired devices found"
+        print_status "Attempting to discover and pair '$device_name'..."
+
+        # Try to scan and find the device
+        if mac_address=$(scan_and_find_device "$device_name"); then
+            # Try to pair with the discovered device
+            if pair_device "$device_name" "$mac_address"; then
+                print_status "Now attempting to connect to newly paired device..."
+                if echo "connect $mac_address" | bluetoothctl | grep -q "Connection successful"; then
+                    print_success "Connected to $device_name"
+                    return 0
+                else
+                    print_error "Paired successfully but failed to connect to $device_name"
+                    return 1
+                fi
+            else
+                print_error "Failed to pair with $device_name"
+                return 1
+            fi
+        else
+            print_error "Could not discover '$device_name'. Make sure it's turned on and in pairing mode."
+            return 1
+        fi
+    fi
+}
+
+# Function to scan and find device MAC by name
+scan_and_find_device() {
+    local device_name="$1"
+    local scan_time=15
+
+    print_status "Scanning for '$device_name' (${scan_time} seconds)..."
+    echo "scan on" | bluetoothctl > /dev/null 2>&1
+
+    local mac_address=""
+    local elapsed=0
+
+    # Scan and check for the device periodically
+    while [[ $elapsed -lt $scan_time ]]; do
+        sleep 2
+        elapsed=$((elapsed + 2))
+
+        # Check if device is discovered
+        mac_address=$(echo "devices" | bluetoothctl | grep -i "$device_name" | head -1 | awk '{print $2}')
+        if [[ -n "$mac_address" ]]; then
+            echo "scan off" | bluetoothctl > /dev/null 2>&1
+            print_success "Found '$device_name' at $mac_address"
+            echo "$mac_address"
+            return 0
+        fi
+
+        if [[ $((elapsed % 4)) -eq 0 ]]; then
+            print_status "Still scanning... (${elapsed}s elapsed)"
+        fi
+    done
+
+    echo "scan off" | bluetoothctl > /dev/null 2>&1
+    print_warning "Device '$device_name' not found during scan"
+    return 1
+}
+
+# Function to pair a device by MAC address
+pair_device() {
+    local device_name="$1"
+    local mac_address="$2"
+
+    print_status "Attempting to pair with '$device_name' ($mac_address)..."
+
+    # First, try to pair
+    if echo "pair $mac_address" | bluetoothctl | grep -q "Pairing successful"; then
+        print_success "Successfully paired with '$device_name'"
+
+        # Trust the device
+        echo "trust $mac_address" | bluetoothctl > /dev/null 2>&1
+        print_status "Device trusted"
+
+        return 0
+    else
+        print_error "Failed to pair with '$device_name'"
         return 1
     fi
 }
@@ -144,9 +220,11 @@ main() {
         print_error "No devices could be connected"
         echo
         print_status "Troubleshooting tips:"
-        echo "  1. Make sure devices are turned on and in pairing mode"
+        echo "  1. Make sure devices are turned on and in pairing/discoverable mode"
         echo "  2. Try running with --scan to discover new devices"
         echo "  3. Check if devices are already paired with another system"
+        echo "  4. For pairing: ensure devices are not connected to other systems"
+        echo "  5. Some devices may require pressing a pairing button"
     fi
 
     echo
@@ -169,10 +247,11 @@ if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
     for device in "${DEVICE_NAMES[@]}"; do
         echo "     - $device"
     done
-    echo "  3. Connect to found devices"
+    echo "  3. If devices are not paired, attempt to discover and pair them"
+    echo "  4. Connect to found/paired devices"
     echo
-    echo "Note: Devices must already be paired. Use your system's Bluetooth"
-    echo "      settings or bluetoothctl to pair new devices first."
+    echo "Note: For pairing new devices, make sure they are in pairing/discoverable"
+    echo "      mode before running this script."
     echo
     exit 0
 fi
